@@ -1,0 +1,80 @@
+﻿@model List<BraintreePOC.Database.Entities.Customer>
+
+<div class="p-3">
+    <form id="customerForm" asp-action="CreateCustomer" asp-controller="Customer">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" name="FirstName" class="form-control" id="firstName" placeholder="Enter first name">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" name="LastName" class="form-control" id="firstName" placeholder="Enter last name">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" name="Email" class="form-control" id="email" placeholder="Enter email">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" name="Phone" class="form-control" id="phone" placeholder="Enter phone">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Customer</button>
+    </form>
+</div>
+<div class="p-3">
+    <h5>Customers</h5>
+    @if (Model?.Count > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Braintree ID</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>@customer.BraintreeId</td>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Phone</td>
+                        <td>
+                            <a href="@Url.Action("CreditCards","Home",new { customerId = customer.Id })" class="text-decoration-none btn btn-primary">Credit Cards</a>
+                        </td>
+                        <td>
+                            <a class="text-decoration-none btn btn-primary">Addresses</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No customers in the system</p>
+    }
+</div>
+
+
+

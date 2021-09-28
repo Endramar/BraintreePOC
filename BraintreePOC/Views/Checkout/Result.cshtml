@@ -1,0 +1,120 @@
+﻿@model BraintreePOC.Models.ViewModels.BraintreeTransactionViewModel;
+
+<article class="content compact">
+    <section>
+        <h5>Transaction</h5>
+        @if (@Model.Succeeded)
+        {
+            <h6 style="color:green">SUCCEEDED</h6>
+        }
+        else
+        {
+            <h6 style="color:red">FAILED</h6>
+        }
+        <table cellpadding="0" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td>id</td>
+                    <td>@Model.Id</td>
+                </tr>
+                <tr>
+                    <td>type</td>
+                    <td>@Model.Type</td>
+                </tr>
+                <tr>
+                    <td>amount</td>
+                    <td>@Model.Amount</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>@Model.Status</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td>@Model.CreatedAt</td>
+                </tr>
+                <tr>
+                    <td>updated_at</td>
+                    <td>@Model.UpdatedAt</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+    @if (Model.CreditCardDetails != null)
+    {
+        <section>
+            <h5>Payment</h5>
+            <table cellpadding="0" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <td>token</td>
+                        <td>@Model.CreditCardDetails.Token</td>
+                    </tr>
+                    <tr>
+                        <td>bin</td>
+                        <td>@Model.CreditCardDetails.Bin</td>
+                    </tr>
+                    <tr>
+                        <td>last_4</td>
+                        <td>@Model.CreditCardDetails.Last4</td>
+                    </tr>
+                    <tr>
+                        <td>card_type</td>
+                        <td>@Model.CreditCardDetails.Type</td>
+                    </tr>
+                    <tr>
+                        <td>expiration_date</td>
+                        <td>@Model.CreditCardDetails.ExpirationDate</td>
+                    </tr>
+                    <tr>
+                        <td>cardholder_name</td>
+                        <td>@Model.CreditCardDetails.CardholderName</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    }
+
+    @{ if (@Model.CustomerDetails.Id != null)
+        {
+            <section>
+                <h5>Customer Details</h5>
+                <table cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td>id</td>
+                            <td>@Model.CustomerDetails.Id</td>
+                        </tr>
+                        <tr>
+                            <td>first_name</td>
+                            <td>@Model.CustomerDetails.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td>last_name</td>
+                            <td>@Model.CustomerDetails.LastName</td>
+                        </tr>
+                        <tr>
+                            <td>email</td>
+                            <td>@Model.CustomerDetails.Email</td>
+                        </tr>
+                        <tr>
+                            <td>company</td>
+                            <td>@Model.CustomerDetails.Company</td>
+                        </tr>
+                        <tr>
+                            <td>website</td>
+                            <td>@Model.CustomerDetails.Website</td>
+                        </tr>
+                        <tr>
+                            <td>phone</td>
+                            <td>@Model.CustomerDetails.Phone</td>
+                        </tr>
+                        <tr>
+                            <td>fax</td>
+                            <td>@Model.CustomerDetails.Fax</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section> } }
+
+</article>

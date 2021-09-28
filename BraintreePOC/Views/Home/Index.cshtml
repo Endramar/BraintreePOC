@@ -1,0 +1,85 @@
+﻿@model List<BraintreePOC.Database.Entities.Customer>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container-fluid">
+
+    <div class="p-3">
+        <h4>Legacy Payment</h4>
+        <form asp-action="Index" asp-controller="Checkout" method="post">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Amount : </span>
+                </div>
+                <input type="number" name="Amount" class="form-control" placeholder="Enter the price">
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Currency" id="gbpCurrency" value="GBP" checked>
+                <label class="form-check-label" for="gbpCurrency">GBP</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Currency" id="usdCurrency" value="USD">
+                <label class="form-check-label" for="usdCurrency">USD</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Currency" id="eurCurrency" value="EUR">
+                <label class="form-check-label" for="eurCurrency">EUR</label>
+            </div>
+            <div class="pt-3 btn-group" role="group">
+                <button type="submit" class="btn btn-primary">Checkout Legacy</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="p-3">
+        <h4>3D Payment</h4>
+        <form asp-action="Payment" asp-controller="Checkout" method="post">
+            @if (Model?.Count > 0)
+            {
+                <div class="form-group">
+                    <label for="customerSelect">Selected Customer</label>
+                    <select class="form-control" id="selectedCustomer" name="CustomerId">
+                        @foreach (var customer in Model)
+                        {
+                            var name = customer.FirstName + " " + customer.LastName;
+                            <option value="@customer.Id">@name</option>
+                        }
+                    </select>
+                </div>
+            }
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Amount : </span>
+                </div>
+                <input type="number" name="Amount" class="form-control" placeholder="Enter the price">
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Currency" id="gbpCurrency" value="GBP" checked>
+                <label class="form-check-label" for="gbpCurrency">GBP</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Currency" id="usdCurrency" value="USD">
+                <label class="form-check-label" for="usdCurrency">USD</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Currency" id="eurCurrency" value="EUR">
+                <label class="form-check-label" for="eurCurrency">EUR</label>
+            </div>
+            <div class="pt-3 btn-group" role="group">
+                <button type="submit" class="btn btn-primary">Checkout 3D2S</button>
+            </div>
+        </form>
+    </div>
+    <div class="p-3">
+        <a href="@Url.Action("Customers","Home")">Go to Customers</a>
+    </div>
+
+</div>
+
+
+
+@*<div>
+        <a class="btn btn-primary text-decoration-none" href="@Url.Action("Index","Checkout")">Go to Checkout</a>
+    </div>*@

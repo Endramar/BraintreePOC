@@ -1,0 +1,39 @@
+﻿@model BraintreePOC.Models.Requests.Checkout.IndexRequest;
+
+@{
+    ViewData["Title"] = "Checkout Page";
+}
+
+<div class="container-fluid">
+    <form asp-action="CreatePurchase" asp-controller="Home" id="my-sample-form" method="post" autocomplete="off">
+        <input type="hidden" id="clientToken" value="@ViewBag.ClientToken" />
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Amount : </span>
+            </div>
+            <input type="text" id="amount" name="Amount" class="form-control" value="@Model.Amount" disabled>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Currency : </span>
+            </div>
+            <input type="text" id="currency" name="Currency" class="form-control" value="@Model.Currency" disabled>
+        </div>
+
+        <label for="card-number">Card Number</label>
+        <div id="card-number"></div>
+
+        <label for="cvv">CVV</label>
+        <div id="cvv"></div>
+
+        <label for="expiration-date">Expiration Date</label>
+        <div id="expiration-date"></div>
+
+        <input class="btn-primary" type="submit" value="Pay" disabled />
+    </form>
+</div>
+
+@section scripts {
+    <script type="text/javascript" src="~/js/checkout.js" asp-append-version="true"></script>
+}

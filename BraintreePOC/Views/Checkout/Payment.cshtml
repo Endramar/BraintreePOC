@@ -1,0 +1,86 @@
+﻿
+@model BraintreePOC.Models.ViewModels.Checkout.PaymentViewModel;
+
+
+<div class="bootstrap-basic">
+    <form id="paymentForm" class="needs-validation" novalidate="">
+        <input type="hidden" id="clientToken" value="@ViewBag.ClientToken" />
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Amount : </span>
+            </div>
+            <input type="text" id="amount" name="Amount" class="form-control" value="@Model.Amount" disabled>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Currency : </span>
+            </div>
+            <input type="text" id="currency" name="Currency" class="form-control" value="@Model.Currency" disabled>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <label for="cc-name">Cardholder Name</label>
+                <div class="form-control" id="cc-name"></div>
+                <small class="text-muted">Full name as displayed on card</small>
+                <div class="invalid-feedback">
+                    Name on card is required
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <label for="cc-number">Credit card number</label>
+                <div class="form-control" id="cc-number"></div>
+                <div class="invalid-feedback">
+                    Credit card number is required
+                </div>
+            </div>
+            <div class="col-sm-3 mb-3">
+                <label for="cc-expiration">Expiration</label>
+                <div class="form-control" id="cc-expiration"></div>
+                <div class="invalid-feedback">
+                    Expiration date required
+                </div>
+            </div>
+            <div class="col-sm-3 mb-3">
+                <label for="cc-expiration">CVV</label>
+                <div class="form-control" id="cc-cvv"></div>
+                <div class="invalid-feedback">
+                    Security code required
+                </div>
+            </div>
+        </div>
+        <hr class="mb-4">
+        <div class="text-center">
+            <button class="btn btn-primary btn-lg" type="submit">Pay with <span id="card-brand">Card</span></button>
+        </div>
+    </form>
+</div>
+@if (Model?.CustomerCreditCards?.Count > 0)
+{
+    <div class="bootstrap-basic">
+        <form id="paymentWithSavedForm" class="needs-validation" novalidate="">
+            <div class="form-group">
+                <label for="customerSelect">Selected Credit Card</label>
+                <select class="form-control" id="selectedCreditCardId" name="SelectedCreditCard">
+                    @foreach (var creditCard in Model?.CustomerCreditCards)
+                    {
+                        var name = @creditCard.Brand + " " + creditCard.Last4;
+                        <option value="@creditCard.Id">@name</option>
+                    }
+                </select>
+            </div>
+            <hr class="mb-4">
+            <div class="text-center">
+                <button class="btn btn-primary btn-lg" type="submit">Pay with selected card</button>
+            </div>
+        </form>
+    </div>
+}
+
+
+@section scripts {
+    <script type="text/javascript" src="~/js/payment.js" asp-append-version="true"></script>
+}
