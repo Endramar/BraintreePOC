@@ -56,6 +56,12 @@ namespace BraintreePOC.Controllers
             return new JsonResult(result);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreatePurchaseWithToken([FromBody] CreatePurchaseWithTokenRequest request)
+        {
+            var result = await this.braintreeService.CreatePurchaseWithToken(request);
+            return new JsonResult(result);
+        }
 
         public async Task<IActionResult> Result(string id)
         {

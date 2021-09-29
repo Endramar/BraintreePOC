@@ -1,4 +1,5 @@
 ﻿using Braintree;
+using BraintreePOC.Database.Entities;
 using BraintreePOC.Entities;
 using BraintreePOC.Models.Requests.Checkout;
 using BraintreePOC.Models.Requests.Customer;
@@ -72,40 +73,17 @@ namespace BraintreePOC.Services
                     break;
             }
 
-
-            var transactionRequest = new TransactionRequest();
-            if (request.SelectedCardId.HasValue)
+            var transactionRequest = new TransactionRequest
             {
-                var dbCreditCard = await dbContext.CreditCards.FindAsync(request.SelectedCardId);
-
-                transactionRequest = new TransactionRequest
+                Amount = request.Amount,
+                PaymentMethodNonce = request.ClientNonce,
+                DeviceData = request.DeviceData,
+                MerchantAccountId = merchantId,
+                Options = new TransactionOptionsRequest
                 {
-                    Amount = request.Amount,
-                    PaymentMethodNonce = request.ClientNonce,
-                    DeviceData = request.DeviceData,
-                    MerchantAccountId = merchantId,
-                    Options = new TransactionOptionsRequest
-                    {
-                        SubmitForSettlement = true,
-                    },
-                    PaymentMethodToken = dbCreditCard.Token
-                };
-            }
-            else
-            {
-                transactionRequest = new TransactionRequest
-                {
-                    Amount = request.Amount,
-                    PaymentMethodNonce = request.ClientNonce,
-                    DeviceData = request.DeviceData,
-                    MerchantAccountId = merchantId,
-                    Options = new TransactionOptionsRequest
-                    {
-                        SubmitForSettlement = true,
-                    }
-                };
-            }
-
+                    SubmitForSettlement = true
+                }
+            };
 
             Result<Transaction> result = await this.braintreeFactory.Gateway.Transaction.SaleAsync(transactionRequest);
 
@@ -193,7 +171,7 @@ namespace BraintreePOC.Services
                 Email = request.Email,
                 Phone = request.Phone,
             };
-            Result<Customer> result = await this.braintreeFactory.Gateway.Customer.CreateAsync(customerRequest);
+            Result<Braintree.Customer> result = await this.braintreeFactory.Gateway.Customer.CreateAsync(customerRequest);
 
             if (result.IsSuccess())
             {
@@ -238,6 +216,8 @@ namespace BraintreePOC.Services
             {
                 var last4 = (result.Target as CreditCard)?.LastFour;
                 var brand = (result.Target as CreditCard)?.CardType.ToString();
+                var isDefault = (result.Target as CreditCard)?.IsDefault;
+
                 string creditCardToken = result.Target.Token;
 
                 var dbCustomerCreditCard = new Database.Entities.CustomerCreditCard
@@ -245,7 +225,8 @@ namespace BraintreePOC.Services
                     CustomerId = request.CustomerId,
                     Last4 = last4,
                     Token = creditCardToken,
-                    Brand = brand
+                    Brand = brand,
+                    IsDefault = isDefault.Value
                 };
 
                 await dbContext.CreditCards.AddAsync(dbCustomerCreditCard);
@@ -264,6 +245,112 @@ namespace BraintreePOC.Services
         {
             var paymentMethod = await this.braintreeFactory.Gateway.PaymentMethod.FindAsync(token);
             return paymentMethod as CreditCard;
+        }
+
+        public async Task<CreatePurchaseResponse> CreatePurchaseWithToken(CreatePurchaseWithTokenRequest request)
+        {
+            var merchantId = "torpedotvgbp";
+            switch (request.Currency)
+            {
+                case "GBP":
+                    merchantId = "torpedotvgbp";
+                    break;
+                case "USD":
+                    merchantId = "torpedotvusd";
+                    break;
+                case "EUR":
+                    merchantId = "torpedotvlimited";
+                    break;
+                default:
+                    merchantId = "torpedotvgbp";
+                    break;
+            }
+
+            var dbCreditCard = await dbContext.FindAsync<CustomerCreditCard>(request.SelectedCardId);
+
+            if (dbCreditCard == null)
+            {
+                return new CreatePurchaseResponse { TransactionId = null, Succeeded = false, ErrorMessage = "Credit card could not be found by this id." };
+            }
+
+            var transactionRequest = new TransactionRequest
+            {
+                Amount = request.Amount,
+                MerchantAccountId = merchantId,
+                PaymentMethodToken = dbCreditCard.Token,
+                Options = new TransactionOptionsRequest
+                {
+                    SubmitForSettlement = true
+                }
+            };
+
+            Result<Transaction> result = await this.braintreeFactory.Gateway.Transaction.SaleAsync(transactionRequest);
+
+            if (result.IsSuccess())
+            {
+                Transaction transaction = result.Target;
+                return new CreatePurchaseResponse { TransactionId = transaction.Id, Succeeded = true };
+            }
+            else if (result.Transaction != null)
+            {
+                return new CreatePurchaseResponse { TransactionId = result.Transaction.Id, Succeeded = true };
+            }
+            else
+            {
+                string errorMessages = "";
+                foreach (ValidationError error in result.Errors.DeepAll())
+                {
+                    errorMessages += "Error: " + (int)error.Code + " - " + error.Message + "\n";
+                }
+
+                return new CreatePurchaseResponse { Succeeded = false, ErrorMessage = errorMessages };
+            }
+
+        }
+
+
+        public async Task<Database.Entities.CustomerAddress> CreateCustomerAddress(CreateAddressRequest request)
+        {
+            var customer = await dbContext.FindAsync<Database.Entities.Customer>(request.CustomerId);
+
+            var addressRequest = new AddressRequest
+            {
+                StreetAddress = request.StreetAddress,
+                ExtendedAddress = request.ExtendedAddress,
+                Region = request.Region,
+                PostalCode = request.PostalCode,
+                PhoneNumber = request.PhoneNumber,
+                CountryName = request.CountryName
+            };
+
+
+            Result<Address> result = await this.braintreeFactory.Gateway.Address.CreateAsync(customer.BraintreeId, addressRequest);
+
+            if (result.IsSuccess())
+            {
+               
+                var dbCustomerAddress = new Database.Entities.CustomerAddress
+                {
+                    PhoneNumber = result.Target.PhoneNumber,
+                    CustomerId = request.CustomerId,
+                    CountryName = request.CountryName,
+                    ExtendedAddress = request.ExtendedAddress,
+                    PostalCode = request.PostalCode,
+                    Region = request.Region,
+                    StreetAddress = request.StreetAddress,
+                    BraintreeId = result.Target.Id
+                };
+
+                await dbContext.Addresses.AddAsync(dbCustomerAddress);
+                await dbContext.SaveChangesAsync();
+
+                return dbCustomerAddress;
+            }
+            else
+            {
+                return null;
+            }
+
         }
     }
 }

@@ -18,6 +18,11 @@ $(document).ready(function () {
             console.error(err);
         });
 
+    $("#paymentWithSavedForm").submit(function (event) {
+        event.preventDefault();
+        createBrainTreePurchaseWithToken();
+    });
+
 });
 
 $('#cc-name').on('change', function () {
@@ -95,7 +100,6 @@ function finalizeHostedFieldsCreation(hostedFieldsInstance, threeDInstance, data
     createHostedFieldsCardTypeEvent(hostedFieldsInstance);
     createHostedFieldsValidationChangeEvent(hostedFieldsInstance);
     createPaymentFormSubmitEvent(hostedFieldsInstance, threeDInstance, dataCollectorInstance);
-    createPaymentWithSavedCardEvent(hostedFieldsInstance, threeDInstance, dataCollectorInstance);
 }
 
 function createHostedFieldsCardTypeEvent(hostedFieldsInstance) {
@@ -160,19 +164,12 @@ function createPaymentFormSubmitEvent(hostedFieldsInstance, threeDInstance, data
             return;
         }
 
-        tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, dataCollectorInstance, true);
+        tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, dataCollectorInstance);
     });
 }
 
 
-function createPaymentWithSavedCardEvent(hostedFieldsInstance, threeDInstance, dataCollectorInstance) {
-    $("#paymentWithSavedForm").submit(function (event) {
-        event.preventDefault();
-        tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, dataCollectorInstance , false);
-    });
-}
-
-function tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, dataCollectorInstance, fromNewCard) {
+function tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, dataCollectorInstance) {
     let amount = $("#amount").val();
 
     hostedFieldsInstance.tokenize().then(function (payload) {
@@ -203,10 +200,7 @@ function tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, data
         }
 
         console.log('verification success:', payload);
-
-
-        createBrainTreePurchase(payload.nonce, dataCollectorInstance.deviceData, fromNewCard);
-
+        createBrainTreePurchase(payload.nonce, dataCollectorInstance.deviceData);
 
     }).catch(function (err) {
         console.log(err);
@@ -214,44 +208,7 @@ function tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, data
 }
 
 
-function createBrainTreePurchase(clientNonce, deviceData , fromNewCard) {
-    let amount = +$("#amount").val();
-    let currency = $("#currency").val();
-
-    let selectedCardId = null;
-    if (!fromNewCard) {
-        selectedCardId = +$("#selectedCreditCardId").val();
-    }
-
-    let request = {
-        ClientNonce: clientNonce,
-        DeviceData: deviceData,
-        Amount: amount,
-        Currency: currency,
-        SelectedCardId: selectedCardId
-    };
-
-    $.ajax({
-        contentType: "application/json",
-        method: "POST",
-        url: "/Checkout/CreatePurchase",
-        data: JSON.stringify(request),
-        success: function (purchaseResult) {
-            console.log("PURCHASE WAS SUCCESSFUL : ", purchaseResult);
-
-            if (purchaseResult) {
-                location.href = `/Checkout/Result?id=${purchaseResult.transactionId}`;
-            }
-
-        },
-        error: function (error) {
-            console.error("PURCHASE ERROR", error);
-        }
-    });
-}
-
-
-function createBrainTreePurchaseWithSavedCard(clientNonce, deviceData) {
+function createBrainTreePurchase(clientNonce, deviceData) {
     let amount = +$("#amount").val();
     let currency = $("#currency").val();
 
@@ -262,10 +219,70 @@ function createBrainTreePurchaseWithSavedCard(clientNonce, deviceData) {
         Currency: currency
     };
 
+    $("#payWithoutTokenButton").attr("disabled", true);
+
     $.ajax({
         contentType: "application/json",
         method: "POST",
         url: "/Checkout/CreatePurchase",
+        data: JSON.stringify(request),
+        success: function (purchaseResult) {
+            console.log("PURCHASE WAS SUCCESSFUL : ", purchaseResult);
+            if (purchaseResult) {
+                location.href = `/Checkout/Result?id=${purchaseResult.transactionId}`;
+            }
+        },
+        error: function (error) {
+            $("#payWithoutTokenButton").attr("disabled", false);
+            console.error("PURCHASE ERROR", error);
+        }
+    });
+}
+
+
+function verify3DSecurity(hostedFieldsInstance, threeDInstance, dataCollectorInstance) {
+    let amount = $("#amount").val();
+
+    hostedFieldsInstance.tokenize().then(function (payload) {
+        return threeDInstance.verifyCard({
+            onLookupComplete: function (data, next) {
+                next();
+            },
+            amount: amount
+        })
+    }).then(function (payload) {
+        if (!payload.liabilityShifted) {
+            console.log('Liability did not shift', payload);
+            return;
+        }
+
+        console.log('verification success:', payload);
+        createBrainTreePurchase(payload.nonce, dataCollectorInstance.deviceData);
+
+    }).catch(function (err) {
+        console.log(err);
+    });
+}
+
+
+
+function createBrainTreePurchaseWithToken() {
+    let amount = +$("#amount").val();
+    let currency = $("#currency").val();
+    let selectedCardId = +$("#selectedCreditCardId").val();
+
+    let request = {
+        Amount: amount,
+        Currency: currency,
+        SelectedCardId: selectedCardId
+    };
+
+    $("#payWithTokenButton").attr("disabled", true);
+
+    $.ajax({
+        contentType: "application/json",
+        method: "POST",
+        url: "/Checkout/CreatePurchaseWithToken",
         data: JSON.stringify(request),
         success: function (purchaseResult) {
             console.log("PURCHASE WAS SUCCESSFUL : ", purchaseResult);
@@ -276,6 +293,7 @@ function createBrainTreePurchaseWithSavedCard(clientNonce, deviceData) {
 
         },
         error: function (error) {
+            $("#payWithTokenButton").attr("disabled", false);
             console.error("PURCHASE ERROR", error);
         }
     });

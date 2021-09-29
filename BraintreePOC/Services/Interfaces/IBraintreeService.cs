@@ -24,5 +24,9 @@ namespace BraintreePOC.Services.Interfaces
 
         Task<CreditCard> GetPaymentMethodByToken(string token);
 
+        Task<CreatePurchaseResponse> CreatePurchaseWithToken(CreatePurchaseWithTokenRequest request);
+
+        Task<Database.Entities.CustomerAddress> CreateCustomerAddress(CreateAddressRequest request);
+
     }
 }

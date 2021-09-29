@@ -1,0 +1,91 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<BraintreePOC.Database.Entities.CustomerAddress>
+
+<div class="p-3">
+    <form id="addressForm" asp-action="CreateAddress" asp-controller="Customer">
+        <input type="hidden" name="CustomerId" id="customerId" value="@ViewBag.CustomerId" />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="firstName">Phone Number</label>
+                    <input type="text" name="PhoneNumber" class="form-control" id="phoneNumber" placeholder="Enter phone number">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="lastName">Country Name</label>
+                    <input type="text" name="CountryName" class="form-control" id="countryName" placeholder="Enter country name">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="firstName">Postal Code</label>
+                    <input type="text" name="PostalCode" class="form-control" id="postalCode" placeholder="Enter postal code">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="lastName">Region</label>
+                    <input type="text" name="Region" class="form-control" id="region" placeholder="Enter region">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="firstName">StreetAddress</label>
+                    <input type="text" name="StreetAddress" class="form-control" id="streetAddress" placeholder="Enter street address">
+                </div>
+            </div> 
+        </div>
+
+        <hr class="mb-4">
+        <div class="text-center">
+            <button class="btn btn-primary btn-lg" type="submit">Save Address</button>
+        </div>
+    </form>
+</div>
+
+<div class="p-3">
+    <h5>Addresses</h5>
+    @if (Model?.Count > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Phone Number</th>
+                    <th scope="col">Country Name</th>
+                    <th scope="col">Postal Code</th>
+                    <th scope="col">Region</th>
+                    <th scope="col" colspan="2">Street Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var address in Model)
+                {
+                <tr>
+                    <td>@address.PhoneNumber</td>
+                    <td>@address.CountryName</td>
+                    <td>@address.PostalCode</td>
+                    <td>@address.Region</td>
+                    <td>@address.StreetAddress</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No addresses in the system</p>
+    }
+</div>
+
+@section scripts {
+    <script type="text/javascript" src="~/js/addresses.js" asp-append-version="true"></script>
+}

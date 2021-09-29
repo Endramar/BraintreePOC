@@ -33,6 +33,21 @@ namespace BraintreePOC.Controllers
 
         }
 
+        public async Task<IActionResult> CreateAddress([FromForm] CreateAddressRequest request)
+        {
+            var address = await this.braintreeService.CreateCustomerAddress(request);
+
+            if (address != null)
+            {
+                return RedirectToAction("Addresses", "Home", new { customerId = request.CustomerId });
+            }
+            else
+            {
+                return RedirectToAction("Error");
+            }
+
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateCustomerCreditCard([FromBody] CreateCustomerCreditCardRequest request)
         {
