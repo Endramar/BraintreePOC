@@ -1,4 +1,5 @@
 ﻿using Braintree;
+using BraintreePOC.Database.Entities;
 using BraintreePOC.Models.Requests.Checkout;
 using BraintreePOC.Models.Requests.Customer;
 using BraintreePOC.Models.Responses.Checkout;
@@ -26,7 +27,9 @@ namespace BraintreePOC.Services.Interfaces
 
         Task<CreatePurchaseResponse> CreatePurchaseWithToken(CreatePurchaseWithTokenRequest request);
 
-        Task<Database.Entities.CustomerAddress> CreateCustomerAddress(CreateAddressRequest request);
+        Task<CustomerAddress> CreateCustomerAddress(CreateAddressRequest request);
+
+        Task<CustomerTransactionRefund> RefundTransaction(RefundTransactionRequest request);
 
     }
 }

@@ -15,5 +15,7 @@ namespace BraintreePOC.Models.Requests.Checkout
 
         public string Currency { get; set; }
 
+        public long CustomerId { get; set; }
+
     }
 }

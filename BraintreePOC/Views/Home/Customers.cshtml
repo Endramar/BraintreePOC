@@ -48,24 +48,28 @@
                     <th scope="col">Phone</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var customer in Model)
                 {
-                    <tr>
-                        <td>@customer.BraintreeId</td>
-                        <td>@customer.FirstName</td>
-                        <td>@customer.LastName</td>
-                        <td>@customer.Email</td>
-                        <td>@customer.Phone</td>
-                        <td>
-                            <a href="@Url.Action("CreditCards","Home",new { customerId = customer.Id })" class="text-decoration-none btn btn-primary">Credit Cards</a>
-                        </td>
-                        <td>
-                            <a href="@Url.Action("Addresses","Home",new { customerId = customer.Id })"  class="text-decoration-none btn btn-primary">Addresses</a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>@customer.BraintreeId</td>
+                    <td>@customer.FirstName</td>
+                    <td>@customer.LastName</td>
+                    <td>@customer.Email</td>
+                    <td>@customer.Phone</td>
+                    <td>
+                        <a href="@Url.Action("CreditCards","Home",new { customerId = customer.Id })" class="text-decoration-none btn btn-primary">Credit Cards</a>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Addresses","Home",new { customerId = customer.Id })" class="text-decoration-none btn btn-primary">Addresses</a>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Transactions","Home",new { customerId = customer.Id })" class="text-decoration-none btn btn-primary">Transactions</a>
+                    </td>
+                </tr>
                 }
             </tbody>
         </table>

@@ -5,6 +5,7 @@
 <div class="bootstrap-basic">
     <form id="paymentForm" class="needs-validation" novalidate="">
         <input type="hidden" id="clientToken" value="@ViewBag.ClientToken" />
+        <input type="hidden" id="customerId" value="@Model.CustomerId" />
         <div class="input-group mb-3">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Amount : </span>

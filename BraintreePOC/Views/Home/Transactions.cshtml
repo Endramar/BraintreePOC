@@ -1,0 +1,53 @@
+﻿
+@model List<BraintreePOC.Database.Entities.CustomerTransaction>
+
+<div class="p-3">
+    <h5>Transactions</h5>
+    @if (Model?.Count > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Braintree Id</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Processor Response Code</th>
+                    <th scope="col">Processor Response Text</th>
+                    <th scope="col">Was Successfull</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transaction in Model)
+                {
+                    <tr>
+                        <td>@transaction.BraintreeTransactionId</td>
+                        <td>@transaction.Amount</td>
+                        <td>@transaction.Status</td>
+                        <td>@transaction.ProcessorResponseCode</td>
+                        <td>@transaction.ProcessorResponseText</td>
+                        @if (transaction.WasSuccessfull)
+                        {
+                            <td style="color:green;">True</td>
+                        }
+                        else
+                        {
+                            <td style="color:red;">False</td>
+                        }
+                        <td>
+                            <a href="@Url.Action("Refund","Checkout",new { transactionId = transaction.Id , customerId = transaction.CustomerId})" class="text-decoration-none btn btn-primary">Refund</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No transaction in the system</p>
+    }
+</div>
+
+@section scripts {
+    <script type="text/javascript" src="~/js/addresses.js" asp-append-version="true"></script>
+}

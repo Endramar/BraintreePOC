@@ -24,12 +24,19 @@ namespace BraintreePOC.Controllers
             this.dbContext = dbContext;
         }
 
-        public async Task<IActionResult> Index([FromForm]IndexRequest request)
+        public async Task<IActionResult> Index([FromForm] IndexRequest request)
         {
             ViewBag.ClientToken = await this.braintreeService.GenerateClientToken(request.Currency);
             return View(request);
         }
 
+
+        public IActionResult Refund(long transactionId, long customerId)
+        {
+            ViewBag.TransactionId = transactionId;
+            ViewBag.CustomerId = customerId;
+            return View();
+        }
 
         public async Task<IActionResult> Payment([FromForm] IndexRequest request)
         {
@@ -39,6 +46,7 @@ namespace BraintreePOC.Controllers
             {
                 Amount = request.Amount,
                 Currency = request.Currency,
+                CustomerId = request.CustomerId
             };
 
             if (request.CustomerId.HasValue)
@@ -108,6 +116,15 @@ namespace BraintreePOC.Controllers
         {
             var result = await this.braintreeService.GetAllTransactions();
             return View();
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> RefundTransaction([FromForm] RefundTransactionRequest request)
+        {
+            var result = await this.braintreeService.RefundTransaction(request);
+            return RedirectToAction("Transactions", "Home", new { customerId = request.CustomerId });
         }
     }
 }

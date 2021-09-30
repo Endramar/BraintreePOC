@@ -45,6 +45,12 @@ namespace BraintreePOC.Controllers
             return View(addresses);
         }
 
+        public IActionResult Transactions(long customerId)
+        {
+            var transactions = dbContext.Transactions.Where(x => x.CustomerId == customerId).ToList();
+            return View(transactions);
+        }
+
         public async Task<IActionResult> CreditCards(long customerId)
         {
             var customerCreditCards = dbContext.CreditCards.Where(x => x.CustomerId == customerId).ToList();

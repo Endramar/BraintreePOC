@@ -3,14 +3,16 @@ using BraintreePOC.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BraintreePOC.Migrations
 {
     [DbContext(typeof(BraintreeDbContext))]
-    partial class BraintreeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210930131830_transaction_and_refunds")]
+    partial class transaction_and_refunds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,14 +130,8 @@ namespace BraintreePOC.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("ProcessorResponseCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProcessorResponseText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsTotallyRefunded")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("WasSuccessfull")
                         .HasColumnType("bit");
@@ -159,6 +155,9 @@ namespace BraintreePOC.Migrations
 
                     b.Property<long>("CustomerTransactionId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsPartial")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

@@ -54,6 +54,7 @@ namespace BraintreePOC.Services
             var clientTokenRequest = new ClientTokenRequest();
             return await this.braintreeFactory.Gateway.ClientToken.GenerateAsync(clientTokenRequest);
         }
+
         public async Task<CreatePurchaseResponse> CreatePurchase(CreatePurchaseRequest request)
         {
             var merchantId = "torpedotvgbp";
@@ -90,10 +91,13 @@ namespace BraintreePOC.Services
             if (result.IsSuccess())
             {
                 Transaction transaction = result.Target;
+
+                await SaveTransactionToDatabase(transaction, request.CustomerId);
                 return new CreatePurchaseResponse { TransactionId = transaction.Id, Succeeded = true };
             }
             else if (result.Transaction != null)
             {
+                await SaveTransactionToDatabase(result.Transaction, request.CustomerId);
                 return new CreatePurchaseResponse { TransactionId = result.Transaction.Id, Succeeded = true };
             }
             else
@@ -161,7 +165,6 @@ namespace BraintreePOC.Services
             return new GetAllTransactionsResponse { AllTransactions = resultList };
         }
 
-
         public async Task<string> CreateCustomer(CreateCustomerRequest request)
         {
             var customerRequest = new CustomerRequest
@@ -197,7 +200,6 @@ namespace BraintreePOC.Services
             }
 
         }
-
 
         public async Task<string> CreateCustomerCreditCard(CreateCustomerCreditCardRequest request)
         {
@@ -289,10 +291,13 @@ namespace BraintreePOC.Services
             if (result.IsSuccess())
             {
                 Transaction transaction = result.Target;
+                await SaveTransactionToDatabase(transaction, dbCreditCard.CustomerId);
+
                 return new CreatePurchaseResponse { TransactionId = transaction.Id, Succeeded = true };
             }
             else if (result.Transaction != null)
             {
+                await SaveTransactionToDatabase(result.Transaction, dbCreditCard.CustomerId);
                 return new CreatePurchaseResponse { TransactionId = result.Transaction.Id, Succeeded = true };
             }
             else
@@ -328,7 +333,7 @@ namespace BraintreePOC.Services
 
             if (result.IsSuccess())
             {
-               
+
                 var dbCustomerAddress = new Database.Entities.CustomerAddress
                 {
                     PhoneNumber = result.Target.PhoneNumber,
@@ -351,6 +356,112 @@ namespace BraintreePOC.Services
                 return null;
             }
 
+        }
+
+
+        public async Task<CustomerTransactionRefund> RefundTransaction(RefundTransactionRequest request)
+        {
+            var transaction = await dbContext.FindAsync<Database.Entities.CustomerTransaction>(request.TransactionId);
+
+            if (transaction == null)
+            {
+                throw new System.Exception("Transaction not found");
+            }
+
+            if (request.Amount > transaction.Amount)
+            {
+                throw new System.Exception("Cannot be grater than the original amount");
+            }
+
+            var brainTreeTransaction = await GetTransactionById(transaction.BraintreeTransactionId);
+
+            if (brainTreeTransaction.Transaction == null)
+            {
+                throw new System.Exception("There is no corresponding transaction in Braintree system");
+            }
+
+            Result<Transaction> result;
+
+            // According to article on https://developer.paypal.com/braintree/docs/reference/request/transaction/void#arg.transaction_id
+            // the transaction should be voided instead of refund if it has the following statuses.
+            if (brainTreeTransaction.Transaction.Status == TransactionStatus.SUBMITTED_FOR_SETTLEMENT
+                || brainTreeTransaction.Transaction.Status == TransactionStatus.AUTHORIZED
+                || brainTreeTransaction.Transaction.Status == TransactionStatus.SETTLEMENT_PENDING)
+            {
+                result = await this.braintreeFactory.Gateway.Transaction.VoidAsync(transaction.BraintreeTransactionId);
+            }
+            else if (!request.IsPartial)
+            {
+                result = await this.braintreeFactory.Gateway.Transaction.RefundAsync(transaction.BraintreeTransactionId);
+            }
+            else
+            {
+                result = await this.braintreeFactory.Gateway.Transaction.RefundAsync(transaction.BraintreeTransactionId, request.Amount);
+            }
+
+            if (result.IsSuccess())
+            {
+                Transaction refund = result.Target;
+                var dbTransactionRefund = new Database.Entities.CustomerTransactionRefund
+                {
+                    Amount = refund.Amount.Value,
+                    CustomerTransactionId = request.TransactionId,
+                };
+
+                await dbContext.TransactionRefunds.AddAsync(dbTransactionRefund);
+                await dbContext.SaveChangesAsync();
+
+                await UpdateTransactionStatus(transaction.Id, refund.Status.ToString());
+
+                return dbTransactionRefund;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        private async Task<long> SaveTransactionToDatabase(Transaction transaction, long customerId)
+        {
+            bool wasSuccessful = this.braintreeFactory.TransactionSuccessStatuses.Contains(transaction.Status);
+
+            var status = transaction.Status.ToString();
+
+            if (transaction.Status == TransactionStatus.GATEWAY_REJECTED)
+            {
+                status = status + " " + transaction.GatewayRejectionReason.ToString();
+            }
+
+            var dbTransaction = new CustomerTransaction
+            {
+                Amount = transaction.Amount.HasValue ? transaction.Amount.Value : 0,
+                BraintreeTransactionId = transaction.Id,
+                CustomerId = customerId,
+                WasSuccessfull = wasSuccessful,
+                ProcessorResponseCode = transaction.ProcessorResponseCode,
+                ProcessorResponseText = transaction.ProcessorResponseText,
+                Status = status
+            };
+
+            dbContext.Transactions.Add(dbTransaction);
+            await dbContext.SaveChangesAsync();
+
+            return dbTransaction.Id;
+        }
+
+        private async Task<long> UpdateTransactionStatus(long transactionId, string newStatus)
+        {
+            var transaction = await dbContext.FindAsync<CustomerTransaction>(transactionId);
+            if (transaction != null)
+            {
+                transaction.Status = newStatus;
+                await dbContext.SaveChangesAsync();
+
+                return transaction.Id;
+            }
+
+            return 0;
         }
     }
 }

@@ -211,12 +211,14 @@ function tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, data
 function createBrainTreePurchase(clientNonce, deviceData) {
     let amount = +$("#amount").val();
     let currency = $("#currency").val();
+    let customerId = +$("#customerId").val();
 
     let request = {
         ClientNonce: clientNonce,
         DeviceData: deviceData,
         Amount: amount,
-        Currency: currency
+        Currency: currency,
+        CustomerId : customerId
     };
 
     $("#payWithoutTokenButton").attr("disabled", true);
@@ -265,11 +267,11 @@ function verify3DSecurity(hostedFieldsInstance, threeDInstance, dataCollectorIns
 }
 
 
-
 function createBrainTreePurchaseWithToken() {
     let amount = +$("#amount").val();
     let currency = $("#currency").val();
     let selectedCardId = +$("#selectedCreditCardId").val();
+
 
     let request = {
         Amount: amount,
