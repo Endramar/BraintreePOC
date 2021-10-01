@@ -83,6 +83,11 @@ namespace BraintreePOC.Services
                 Options = new TransactionOptionsRequest
                 {
                     SubmitForSettlement = true
+                },
+                BillingAddress = new AddressRequest
+                {
+                    PostalCode = "SW6 5NN",
+                    CountryName = "United Kingdom"
                 }
             };
 
@@ -368,10 +373,10 @@ namespace BraintreePOC.Services
                 throw new System.Exception("Transaction not found");
             }
 
-            if (request.Amount > transaction.Amount)
-            {
-                throw new System.Exception("Cannot be grater than the original amount");
-            }
+            //if (request.Amount > transaction.Amount)
+            //{
+            //    throw new System.Exception("Cannot be grater than the original amount");
+            //}
 
             var brainTreeTransaction = await GetTransactionById(transaction.BraintreeTransactionId);
 
@@ -389,10 +394,6 @@ namespace BraintreePOC.Services
                 || brainTreeTransaction.Transaction.Status == TransactionStatus.SETTLEMENT_PENDING)
             {
                 result = await this.braintreeFactory.Gateway.Transaction.VoidAsync(transaction.BraintreeTransactionId);
-            }
-            else if (!request.IsPartial)
-            {
-                result = await this.braintreeFactory.Gateway.Transaction.RefundAsync(transaction.BraintreeTransactionId);
             }
             else
             {

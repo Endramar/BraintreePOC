@@ -32,6 +32,11 @@ namespace BraintreePOC.Controllers
             return View(customers);
         }
 
+        public IActionResult Tests()
+        {
+            return View();
+        }
+
         public IActionResult Customers()
         {
             var customers = dbContext.Customers.ToList();
@@ -47,7 +52,8 @@ namespace BraintreePOC.Controllers
 
         public IActionResult Transactions(long customerId)
         {
-            var transactions = dbContext.Transactions.Where(x => x.CustomerId == customerId).ToList();
+            var transactions = dbContext.Transactions.Where(x => x.CustomerId == customerId)
+                .OrderByDescending(x => x.Id).ToList();
             return View(transactions);
         }
 

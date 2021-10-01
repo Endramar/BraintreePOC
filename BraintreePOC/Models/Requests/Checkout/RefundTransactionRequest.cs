@@ -11,8 +11,6 @@ namespace BraintreePOC.Models.Requests.Checkout
 
         public long CustomerId { get; set; }
 
-        public bool IsPartial { get; set; }
-
         public decimal Amount { get; set; }
     }
 }

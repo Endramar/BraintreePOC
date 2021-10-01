@@ -1,0 +1,163 @@
+﻿<h3>Test Helper Page</h3>
+
+<div class="container-fluid">
+    <div class="p-3">
+        <h4>Valid Card Numbers</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Card Number</th>
+                    <th scope="col">Card Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>5555555555554444</td>
+                    <td>Master Card</td>
+                </tr>
+                <tr>
+                    <td>4111111111111111</td>
+                    <td>Visa</td>
+                </tr>
+                <tr>
+                    <td>4005519200000004</td>
+                    <td>Visa</td>
+                </tr>
+                <tr>
+                    <td>4012000033330026</td>
+                    <td>Visa</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3">
+        <h4>Invalid Card Numbers</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Card Number</th>
+                    <th scope="col">Card Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>4000111111111115</td>
+                    <td>Visa</td>
+                </tr>
+                <tr>
+                    <td>5105105105105100</td>
+                    <td>Master Card</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3">
+        <h4>Test With Amounts</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Authorization Response</th>
+                    <th scope="col">Settlement Response</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0.01 - 1999.99</td>
+                    <td>Authorized</td>
+                    <td>Settled</td>
+                </tr>
+                <tr>
+                    <td>2000.00 - 2999.99</td>
+                    <td>Processor Declined with a processor response equal to the amount</td>
+                    <td>n/a</td>
+                </tr>
+                <tr>
+                    <td>2000.00 - 2999.99</td>
+                    <td>Failed with a 3000 processor response</td>
+                    <td>n/a</td>
+                </tr>
+                <tr>
+                    <td>3000.00 - 3000.99</td>
+                    <td>Failed with a 3000 processor response (Processor Network Unavailable – Try Again)</td>
+                    <td>n/a</td>
+                </tr>
+                <tr>
+                    <td>5001.00</td>
+                    <td>Gateway Rejected with a reason of Application Incomplete</td>
+                    <td>n/a</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3">
+        <h4>Test With CVV</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">CVV</th>
+                    <th scope="col">Response</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>200</td>
+                    <td>N (does not match)</td>
+                </tr>
+                <tr>
+                    <td>201</td>
+                    <td>U (not verified)</td>
+                </tr>
+                <tr>
+                    <td>301</td>
+                    <td>S (issuer does not participate)</td>
+                </tr>
+                <tr>
+                    <td>no value passed</td>
+                    <td>I (not provided)</td>
+                </tr>
+                <tr>
+                    <td>any other value</td>
+                    <td>M (matches)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="p-3">
+        <h4>Test With AVS (Address Verification System)</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Billing Postal Code</th>
+                    <th scope="col">Response</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>30000</td>
+                    <td>E (AVS system error)</td>
+                </tr>
+                <tr>
+                    <td>30001</td>
+                    <td>S (issuing bank does not support AVS)</td>
+                </tr>
+                <tr>
+                    <td>20000</td>
+                    <td>N (does not match)</td>
+                </tr>
+                <tr>
+                    <td>2001</td>
+                    <td>U (not verified)</td>
+                </tr>
+                <tr>
+                    <td>no value passed</td>
+                    <td>I (not provided)</td>
+                </tr>
+                <tr>
+                    <td>any other value</td>
+                    <td>M (matches)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

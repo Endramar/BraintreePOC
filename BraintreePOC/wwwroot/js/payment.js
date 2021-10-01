@@ -179,19 +179,12 @@ function tokenizeHostedFieldsInstance(hostedFieldsInstance, threeDInstance, data
             },
             amount: amount,
             nonce: payload.nonce,
-            bin: payload.details.bin
+            bin: payload.details.bin,
             //email: billingFields.email.input.value,
-            //billingAddress: {
-            //    givenName: billingFields['billing-given-name'].input.value,
-            //    surname: billingFields['billing-surname'].input.value,
-            //    phoneNumber: billingFields['billing-phone'].input.value.replace(/[\(\)\s\-]/g, ''), // remove (), spaces, and - from phone number
-            //    streetAddress: billingFields['billing-street-address'].input.value,
-            //    extendedAddress: billingFields['billing-extended-address'].input.value,
-            //    locality: billingFields['billing-locality'].input.value,
-            //    region: billingFields['billing-region'].input.value,
-            //    postalCode: billingFields['billing-postal-code'].input.value,
-            //    countryCodeAlpha2: billingFields['billing-country-code'].input.value
-            //}
+            billingAddress: {
+                postalCode: "SW6 5NN",
+                countryName : "United Kingdom"
+            }
         })
     }).then(function (payload) {
         if (!payload.liabilityShifted) {
@@ -250,7 +243,8 @@ function verify3DSecurity(hostedFieldsInstance, threeDInstance, dataCollectorIns
             onLookupComplete: function (data, next) {
                 next();
             },
-            amount: amount
+            amount: amount,
+            
         })
     }).then(function (payload) {
         if (!payload.liabilityShifted) {
